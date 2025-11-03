@@ -60,3 +60,4 @@ outputs/*.joblib
 .DS_Store
 Thumbs.db
 
+*.zip
