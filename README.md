@@ -47,14 +47,14 @@ Credit-Risk-Modeling-Take-Home/
 
 ### Dataset: `data/credit_risk_data_enhanced.csv`
 
-Each record represents a loan at origination. The dataset spans **multiple vintages** (2021-01 to 2024-09) with **~3% default rate** (imbalanced).
+Each record represents a loan at origination. The dataset spans **multiple vintages** (2021-01 to 2024-09) with **~3% default rate**.
 
 | Column | Type | Description | Special Values |
 |--------|------|-------------|----------------|
 | `loan_id` | str | Unique loan identifier | - |
 | `origination_date` | date | Loan origination date | - |
 | `vintage` | str | Origination month (YYYYMM) | - |
-| `months_on_book` | int | **⚠️ LEAKAGE RISK** - Months since origination | - |
+| `months_on_book` | int | Months since origination | - |
 | `fico_score` | int | Credit score (550–850) | **99999 = Missing** |
 | `income` | int | Annual income (USD) | **-1 = Missing** |
 | `debt_to_income` | float | Ratio of debt to income | - |
@@ -69,72 +69,54 @@ Each record represents a loan at origination. The dataset spans **multiple vinta
 | `employment_length` | int | Years of employment | - |
 | `state` | str | Borrower's state | - |
 | `age` | int | Borrower's age | - |
-| `days_past_due_current` | int | **⚠️ LEAKAGE RISK** - Current DPD status | - |
-| `total_payments_to_date` | float | **⚠️ LEAKAGE RISK** - Payments made | - |
+| `days_past_due_current` | int | Current DPD status | - |
+| `total_payments_to_date` | float | Payments made | - |
 | `sample_weight` | float | Sample importance weight | - |
 | `default_12m` | int | **Target variable** (1 = default within 12 months) | - |
 
 ### Key Challenges:
 
-#### 1. **Data Quality & Special Values** ⭐
-Handle special values that represent missing data:
-- `fico_score = 99999` → Missing FICO
-- `income = -1` → Missing income  
-- `inquiries_last_6m = 99` → Missing inquiries
+Your solution should address these common real-world modeling challenges:
 
-**Question to address**: How do you handle these missing values? Why not just use `NaN`?
+1. **Data Quality**: The dataset may contain data quality issues common in production systems. Identify and handle them appropriately.
 
-#### 2. **Imbalanced Target** ⭐⭐
-Default rate is ~3% (highly imbalanced). 
-- Consider using `sample_weight` for weighted training
-- Evaluate appropriate metrics (AUC-ROC, AUC-PR, KS statistic)
-- Discuss precision/recall tradeoffs
+2. **Validation Strategy**: Design an appropriate train/validation/test strategy for credit risk models. Consider the temporal nature of the data.
 
-#### 3. **Out-of-Time Validation** ⭐⭐⭐
-Data spans multiple vintages (2021-2024).
-- **DO NOT** use random train/test split
-- Use **vintage-based time series split** (e.g., train on 2021-2022, validate on 2023, test on 2024)
-- Explain why this is critical for credit models
+3. **Class Imbalance**: Consider how the target distribution may affect modeling choices and evaluation.
 
-#### 4. **Data Leakage Detection** ⭐⭐⭐
-The dataset contains features that would **NOT** be available at origination:
-- `months_on_book` - only known after origination
-- `days_past_due_current` - performance data
-- `total_payments_to_date` - performance data
-
-**Question to address**: Identify ALL features with potential leakage and explain why they shouldn't be used.
+4. **Feature Selection**: Not all features may be appropriate for a model predicting default at loan origination. Think carefully about what information would actually be available at decision time.
 
 ### Tasks:
 
-1. **EDA & Data Quality**
-   - Analyze vintage distribution and default rates over time
-   - Handle special values appropriately (99999, -1, 99)
-   - Identify and document potential data leakage
-   - Analyze class imbalance
+1. **Exploratory Data Analysis**
+   - Understand the data structure and distributions
+   - Identify any data quality issues
+   - Analyze target variable characteristics
+   - Examine relationships between features and target
 
-2. **Feature Engineering**
-   - Engineer features that would be available at origination
-   - Handle missing values encoded as special values
-   - Create appropriate encodings for categorical variables
-   - Consider feature interactions
+2. **Data Preprocessing & Feature Engineering**
+   - Handle data quality issues appropriately
+   - Select and engineer relevant features
+   - Create encodings for categorical variables
+   - Consider interactions or transformations
 
 3. **Model Development**
-   - Implement **out-of-time validation** using vintage splits
-   - Train at least two models (e.g., Logistic Regression, Gradient Boosted Trees)
-   - Use sample weights for imbalanced learning
-   - Tune hyperparameters with proper validation
+   - Design an appropriate validation strategy
+   - Train and tune at least two different models
+   - Make informed choices about handling class distribution
+   - Document your modeling decisions
 
-4. **Evaluation**
-   - Compare models using multiple metrics (AUC-ROC, AUC-PR, KS)
-   - Analyze model performance across different vintages
-   - Generate feature importance and interpret results
-   - Create calibration plots
+4. **Model Evaluation**
+   - Evaluate models using appropriate metrics
+   - Analyze model performance and stability
+   - Interpret feature importance
+   - Assess model calibration
 
-5. **Discussion**
-   - Discuss data leakage risks and how you avoided them
-   - Explain your approach to handling imbalanced data
-   - Discuss model assumptions and limitations
-   - Propose improvements for production deployment
+5. **Summary & Recommendations**
+   - Summarize your approach and key findings
+   - Discuss model limitations and assumptions
+   - Propose next steps for production deployment
+   - Highlight any concerns or areas needing clarification
 
 ### Deliverable: 
 `notebooks/modeling.ipynb` (or equivalent) with all outputs saved
@@ -244,21 +226,19 @@ jupyter lab
 
 ## 📊 Evaluation Criteria
 
-### Core Assignment (Required):
+Your submission will be evaluated on:
 
-- **Data Quality (20%)**: Proper handling of special values and missing data
-- **Modeling Approach (25%)**: Sound methodology, out-of-time validation, handling imbalance
-- **Feature Engineering (15%)**: Creative and appropriate transformations
-- **Leakage Prevention (15%)**: Correctly identify and avoid data leakage
-- **Code Quality (15%)**: Clean, readable, modular code
-- **Communication (10%)**: Clear documentation, insights, and visualizations
+- **Technical Approach**: Sound modeling methodology and appropriate techniques
+- **Data Understanding**: Awareness of data quality issues and proper handling
+- **Feature Engineering**: Thoughtful feature creation and selection
+- **Model Performance**: Model quality and evaluation rigor
+- **Code Quality**: Clean, readable, and reproducible code
+- **Communication**: Clear documentation, insights, and justification of decisions
+- **Production Readiness**: Considerations for real-world deployment
 
 ### Bonus Section (Optional):
-
-- **Pipeline Design (30%)**: Well-structured, reproducible workflow
-- **Best Practices (30%)**: Proper logging, error handling, testing
-- **Artifacts Management (20%)**: Model versioning and experiment tracking
-- **Documentation (20%)**: Clear instructions and examples
+- **Engineering Best Practices**: Well-structured, testable, production-ready code
+- **Workflow Management**: Proper orchestration and experiment tracking
 
 ---
 
@@ -278,12 +258,13 @@ jupyter lab
 
 ---
 
-## ⚡ Quick Tips
+## ⚡ Tips
 
-- **Start simple**: Get a baseline model working first
-- **Document decisions**: Explain your choices (especially for handling special values and leakage)
+- **Start simple**: Get a baseline working before adding complexity
+- **Document your thinking**: Explain the rationale behind your decisions
 - **Show your work**: Include visualizations and intermediate results
-- **Time management**: Focus on core requirements first, bonus is truly optional
+- **Ask questions**: If anything is unclear, please reach out
+- **Time management**: Focus on demonstrating your core skills first
 
 ---
 

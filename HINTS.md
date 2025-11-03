@@ -1,128 +1,82 @@
 # Hints and Guidance
 
-This document provides hints and clarifications for the take-home assignment. Use these if you get stuck, but try to solve problems independently first!
+This document provides hints for the take-home assignment. **Try to solve challenges independently first**, then refer here if you get stuck or want to validate your thinking.
 
-## 🎯 Core Assignment Hints
+## 🎯 Getting Started
 
-### 1. Handling Special Values
+### Understanding the Problem
 
-**Why use special values (99999, -1, 99) instead of NaN?**
-- In production systems, missing data is often encoded with special values
-- Different systems may use different conventions
-- This tests your ability to handle real-world data quality issues
+This is a credit risk modeling problem. Key questions to ask yourself:
+- What are you predicting? (12-month default probability)
+- When would this prediction be made? (At loan origination)
+- What information would be available at that time?
+- How will the model be used in production?
 
-**Hint for handling:**
-```python
-# Option 1: Replace with NaN and impute
-df['fico_score'] = df['fico_score'].replace(99999, np.nan)
+### Data Quality Hints
 
-# Option 2: Create a missing indicator
-df['fico_missing'] = (df['fico_score'] == 99999).astype(int)
-df['fico_score'] = df['fico_score'].replace(99999, df['fico_score'].median())
-
-# Option 3: Treat as a separate category (for tree-based models)
-# Some algorithms can handle this naturally
-```
+**Look for:**
+- Unexpected values or patterns in numerical columns
+- Values that seem like placeholders or error codes
+- Missing data patterns (is missingness informative?)
+- Distribution shifts across time (vintages)
 
 **Questions to consider:**
-- Does missing data carry information? (e.g., missing FICO might indicate higher risk)
-- How does your imputation strategy affect model performance?
+- Why might some values be encoded differently than standard NaN?
+- Does missing information itself carry a signal?
+- How should you handle different types of missingness?
 
-### 2. Out-of-Time Validation
+### Validation Strategy Hints
 
-**Why not use random train/test split?**
-- Credit models are used to predict **future** defaults
-- Random splits can leak future information into training
-- Vintage-based splits simulate real-world deployment
-
-**Hint for implementation:**
-```python
-# Bad: Random split (temporal leakage)
-X_train, X_test = train_test_split(X, y, test_size=0.2)
-
-# Good: Vintage-based split
-train_data = df[df['vintage'] <= '202212']  # Train on 2021-2022
-val_data = df[(df['vintage'] >= '202301') & (df['vintage'] <= '202306')]  # Val on H1 2023
-test_data = df[df['vintage'] >= '202307']  # Test on H2 2023-2024
-```
+**Think about:**
+- The data has a temporal structure (vintages)
+- Credit risk models predict future behavior
+- What would constitute a fair test of the model's ability?
 
 **Questions to consider:**
-- How does model performance vary across vintages?
-- Are there seasonal patterns in defaults?
-- How would you handle model degradation over time?
+- If you trained on all available data randomly shuffled, what information might leak?
+- How do you simulate a realistic production scenario?
+- How stable is performance across different time periods?
+- What validation approach would give you confidence in future performance?
 
-### 3. Identifying Data Leakage
+### Feature Selection Hints
 
-**Features that should NOT be used:**
+**Critical question:** What information is actually available when making a prediction?
 
-1. **`months_on_book`** 
-   - Only known after loan origination
-   - Perfect predictor if you know loan has been open for 18 months without default
-   
-2. **`days_past_due_current`**
-   - Current delinquency status
-   - Only known after origination
-   - Directly related to target (defaulters are often DPD > 0)
-   
-3. **`total_payments_to_date`**
-   - Performance data
-   - Only available after origination
-   - Defaulters pay less (obvious leakage)
+**Think about the timeline:**
+1. Loan application is received
+2. Decision is made (approve/deny)
+3. Loan originates (if approved)
+4. Performance is observed over time
 
-**Red flags for leakage:**
-- Features that are "too good to be true" (AUC > 0.95)
-- Features that wouldn't be available at prediction time
-- Features derived from the target variable
+**At what point in this timeline would you use your model?**
 
-**Hint for detection:**
-```python
-# Check feature importance
-# If months_on_book or days_past_due_current are top features, you have leakage!
+**Red flags to watch for:**
+- Features with suspiciously high predictive power
+- Features that describe events happening AFTER the prediction point
+- Information that would only be known for completed loans
 
-# Validate by training with/without suspicious features
-model_with_leakage = train_model(X_with_leakage, y)
-model_without_leakage = train_model(X_without_leakage, y)
+**Validation approach:**
+- Train models with different feature sets
+- Compare performance - if dropping a feature causes a dramatic drop, ask why
+- Would this feature be available in a production system at decision time?
 
-# If AUC drops dramatically, those features were leakage
-```
+### Class Imbalance Hints
 
-### 4. Handling Imbalanced Data
+**Observe the target distribution:**
+- What percentage of loans default?
+- What happens if your model always predicts "no default"?
 
-**Why is this important?**
-- Only ~3% of loans default
-- Without proper handling, model may just predict "no default" for everyone
-- Sample weights help the model focus on minority class
+**Consider:**
+- Techniques for handling imbalanced datasets
+- Whether certain samples should be weighted differently
+- What metrics are appropriate for imbalanced problems
+- The business cost of false positives vs false negatives
 
-**Hints for implementation:**
-
-```python
-# Option 1: Use sample weights (provided in dataset)
-model.fit(X_train, y_train, sample_weight=train_weights)
-
-# Option 2: Class weights
-LogisticRegression(class_weight='balanced')
-XGBClassifier(scale_pos_weight=32)  # ratio of negative to positive
-
-# Option 3: Resampling (be careful with time series!)
-from imblearn.over_sampling import SMOTE
-X_resampled, y_resampled = SMOTE().fit_resample(X_train, y_train)
-```
-
-**Metrics for imbalanced data:**
-- **AUC-ROC**: Good for ranking, but can be misleading
-- **AUC-PR**: Better for imbalanced datasets
-- **KS Statistic**: Common in credit risk (max separation between classes)
-- **F1-Score at different thresholds**: Consider business costs
-
-**Hint for threshold selection:**
-```python
-from sklearn.metrics import precision_recall_curve
-
-precision, recall, thresholds = precision_recall_curve(y_test, y_pred_proba)
-
-# Choose threshold based on business requirements
-# e.g., 80% recall (catch 80% of defaults) at acceptable precision
-```
+**Evaluation questions:**
+- Is accuracy a good metric here? Why or why not?
+- What metrics better capture performance on the minority class?
+- How do you choose an operating threshold?
+- What are the tradeoffs between precision and recall?
 
 ---
 
@@ -232,15 +186,15 @@ special_values_config = {
 df = handle_special_values(df, special_values_config)
 ```
 
-### Common Mistakes to Avoid
+### Things to Keep in Mind
 
-1. ❌ Using random train/test split
-2. ❌ Using leakage features
-3. ❌ Ignoring class imbalance
-4. ❌ Not handling special values
-5. ❌ Overfitting to validation set
-6. ❌ Not documenting assumptions
-7. ❌ Presenting only final results (show your process!)
+1. ✅ Think carefully about your validation strategy
+2. ✅ Consider what features should and shouldn't be used
+3. ✅ Address class distribution in your approach
+4. ✅ Handle data quality issues appropriately
+5. ✅ Avoid overfitting - test on truly held-out data
+6. ✅ Document your reasoning and assumptions
+7. ✅ Show your thought process, not just final results
 
 ### What We're Really Testing
 
@@ -261,22 +215,22 @@ df = handle_special_values(df, special_values_config)
 ## ❓ FAQ
 
 **Q: Can I use external data sources?**
-A: No, please use only the provided dataset.
+A: Please use only the provided dataset.
 
 **Q: How much feature engineering is expected?**
-A: We don't expect hours of feature engineering. A few well-thought-out features are better than dozens of random transformations.
+A: Quality over quantity. Thoughtful features with clear rationale are more valuable than many random transformations.
 
 **Q: Should I tune hyperparameters extensively?**
-A: Basic tuning is good, but don't spend hours on it. Focus on methodology and code quality.
+A: Some tuning is good, but focus more on methodology and code quality. Document your approach.
 
-**Q: Can I use AutoML tools?**
-A: For the core assignment, we prefer to see your modeling decisions. For the bonus section, AutoML is acceptable if you can explain what it's doing.
+**Q: What if I'm unsure about something?**
+A: Ask! Part of the evaluation is how you handle ambiguity and seek clarification.
 
-**Q: What if my model performance is poor?**
-A: That's okay! Document what you tried and why you think it didn't work. Learning from failures is important.
+**Q: What if my model performance isn't great?**
+A: Document what you tried and your hypotheses about what worked or didn't work. The thought process matters.
 
 **Q: How important is the bonus section?**
-A: It's truly optional. A great core submission is better than a rushed attempt at both.
+A: Truly optional. A strong core submission is better than rushing through both parts.
 
 ---
 
