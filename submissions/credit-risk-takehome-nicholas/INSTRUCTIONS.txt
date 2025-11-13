@@ -1,0 +1,88 @@
+Credit Risk Modeling - Take-Home Assignment
+===========================================
+
+Welcome! This package contains everything you need for the take-home assignment.
+
+📁 PACKAGE CONTENTS
+-------------------
+├── README.md                          # Full assignment instructions
+├── HINTS.md                           # Optional hints (use if stuck)
+├── requirements.txt                   # Python dependencies
+├── .gitignore                         # Git ignore file
+│
+├── data/
+│   └── credit_risk_data_enhanced.csv  # Dataset for modeling
+│
+├── notebooks/
+│   └── modeling.ipynb                 # Your main deliverable (starter template)
+│
+├── src/                               # Optional: for modular code
+│   ├── __init__.py
+│   ├── preprocessing.py
+│   ├── modeling.py
+│   ├── evaluation.py
+│   └── credit_risk_flow_template.py   # Bonus: Metaflow template
+│
+└── outputs/                           # For saving models/plots
+
+
+🚀 GETTING STARTED
+------------------
+
+1. Extract this zip file to your working directory
+
+2. Set up Python environment:
+   
+   # Create virtual environment (recommended)
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+
+3. Start working:
+   
+   # Open Jupyter notebook
+   jupyter notebook notebooks/modeling.ipynb
+   
+   # Or use JupyterLab
+   jupyter lab
+
+4. Read README.md for full assignment details
+
+5. Optional: Check HINTS.md if you get stuck
+
+
+📊 DELIVERABLES
+---------------
+
+When complete, please submit:
+
+1. Your completed notebook: notebooks/modeling.ipynb
+   - Ensure all outputs are saved (we'll review without re-running)
+   
+2. (Optional) Any modular code you created in src/
+
+3. (Optional) Metaflow pipeline if you completed the bonus section
+
+4. Brief summary at the end of your notebook covering:
+   - Key findings
+   - Model performance summary
+   - Any data quality issues identified
+   - Recommendations for improvement
+
+
+⏱️ TIME ESTIMATE
+-----------------
+- Core assignment: 6-8 hours
+- Bonus section: +2-4 hours (truly optional)
+
+
+❓ QUESTIONS
+------------
+If you have any questions about the assignment, please reach out to:
+jing.ren@bestegg.com
+
+
+Good luck! 🎉
+
