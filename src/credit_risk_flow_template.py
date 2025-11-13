@@ -113,10 +113,12 @@ class CreditRiskFlow(FlowSpec):
         
         print("✓ Handling special values...")
         
-        # TODO: Remove leakage features
-        leakage_cols = ['months_on_book', 'days_past_due_current', 'total_payments_to_date']
-        df = df.drop(columns=leakage_cols, errors='ignore')
-        print(f"✓ Removed leakage features: {leakage_cols}")
+        # TODO: Identify and remove leakage features
+        # CRITICAL: Think about the timeline - what data wouldn't exist at loan application time?
+        # Analyze the columns and determine which ones represent post-origination information.
+        # leakage_cols = []  # Fill this in after analyzing the data
+        # df = df.drop(columns=leakage_cols, errors='ignore')
+        # print(f"✓ Removed leakage features: {leakage_cols}")
         
         # TODO: Create vintage-based splits
         self.df_train = df[df['vintage'] <= self.train_vintage_end].copy()
