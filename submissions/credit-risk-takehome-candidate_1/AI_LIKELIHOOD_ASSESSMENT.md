@@ -1,5 +1,5 @@
 # AI Generation Likelihood Assessment
-## Candidate: Nicholas
+## Candidate: candidate_1
 
 **Date:** November 13, 2025  
 **Reviewer:** Jenny Ren
@@ -28,7 +28,7 @@
 - Creates `use_sample_weights` parameter
 - Extracts `self.sample_weights` from data
 - **Never passes weights to training functions**
-- Template had this working; Nicholas' version is broken
+- Template had this working; candidate_1's version is broken
 - Also contradicts notebook which removes sample_weight as leakage
 
 ### 3. Unremoved Template TODOs
@@ -42,7 +42,7 @@
 - Human would remove placeholders after implementing
 
 ### 5. Leakage Features Provided in Template 
-- I gave Nicholas 3/5 leakage features in template
+- I gave candidate_1 3/5 leakage features in template
 - He didn't independently discover them
 - Just copied template + added 2 that don't exist
 
@@ -126,7 +126,7 @@
 - Added columns that **don't exist** in the data
 - Code that **extracts but never uses** sample weights  
 - TODOs **still in the code** after implementing
-- Template **bugs fixed**, but Nicholas' version **broken**
+- Template **bugs fixed**, but candidate_1's version **broken**
 
 **The Verdict:**
 - Metaflow: 95% AI, 0% validation, has critical bugs
