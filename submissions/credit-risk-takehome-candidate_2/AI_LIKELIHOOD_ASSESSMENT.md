@@ -1,8 +1,8 @@
-# AI Likelihood Assessment - Candidate_2
+# Assessment - Candidate_2
 
 **Date:** 2025-11-14  
 **Verdict:** LOW AI over-reliance (~10-20%). Real work, appropriate AI use.  
-**Recommendation:** STRONG HIRE 🎯
+**Recommendation:** HIRE 
 
 ---
 
@@ -14,7 +14,7 @@ This is what good AI usage looks like. Candidate used AI for productivity (boile
 
 ## What They Got Right (Signs of Real Work)
 
-**Leakage Detection** 🎯
+**Leakage Detection** 
 - Found ALL 3 leakage features: `days_past_due_current`, `total_payments_to_date`, `months_on_book`
 - Critical: the template doesn't give these away anymore
 - Had to actually analyze the data to find them
@@ -62,16 +62,13 @@ This is what good AI usage looks like. Candidate used AI for productivity (boile
 
 **AI Usage: 10-20%** - Used appropriately for productivity, not thinking.
 
-**Why This is a Strong Hire:**
+**Why This is a Hire:**
 - Actually understands credit risk (vintage splits, maturity effects, leakage concepts)
 - Code is production-ready (modular, tracked, reproducible)
 - Evidence of real work (multiple runs, timestamps, iteration)
 - Domain intuition (engineered features make sense)
 - Validated everything (statistical tests, comparison reports)
 
-**vs Candidate_1:**
-- Candidate_1: Copy-pasted AI, added fake columns, broken code → REJECT
-- Candidate_2: Used AI smartly, found real issues, working code → HIRE
 
 ---
 
