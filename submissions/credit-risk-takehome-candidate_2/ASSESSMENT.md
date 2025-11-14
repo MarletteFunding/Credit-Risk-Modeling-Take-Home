@@ -57,6 +57,16 @@ This is what good AI usage looks like. Candidate used AI for productivity (boile
 
 ---
 
+## Minor Issue
+
+**Sample Weight Inconsistency** (Metaflow template only)
+- Used `sample_weight` in model training (line 202)
+- But didn't use it when calculating metrics (AUC, etc.)
+- Not a big deal but shows incomplete thought on handling imbalance
+- Main notebook doesn't use sample_weight at all, which is fine
+
+---
+
 
 ## My Take
 
